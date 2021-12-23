@@ -1,3 +1,5 @@
+import os
+import sys
 import json
 import time
 import docker
@@ -113,42 +115,105 @@ print('-'*80)
 
 secs_begin = time.time()
 
-client = docker.DockerClient(base_url='unix:///var/run/docker.sock')
-for containers in client.containers.list():
-    doc = containers.stats(decode=None, stream=False)
-    cpu_pcent = calculate_cpu_percent(doc)
-    mem_usage = doc["memory_stats"]["usage"]
-    mem_limit = doc["memory_stats"]["limit"]
+def plot_inc_cpu_over_time():
+    import pandas as pd
+    import numpy as np
+    import matplotlib
+    import matplotlib.pyplot as plt
+
+    def normalize_booleans(value):
+        return 1 if value else 0
     
-    is_increasing_cpu = cpu_pcent < 80.0 #psutil.cpu_percent()
-    is_increasing_mem = mem_usage < (psutil.virtual_memory()[1] * 0.8)
+    def normalize_secs(value, start_time, end_time):
+        return (value - start_time) / (end_time - start_time)
     
-    d = {}
-    d["secs"] = time.time()
-    d["container_id"] = containers.id
-    d["container_name"] = containers.name
-    d["cpu_pcent"] = cpu_pcent
-    d["mem_usage"] = mem_usage
-    d["mem_limit"] = mem_limit
-    d["is_increasing_cpu"] = is_increasing_cpu
-    d["is_increasing_mem"] = is_increasing_mem
+    df = pd.DataFrame(time_series_data)
+    print(df.head())
+    df_d = df[["secs","is_increasing_cpu"]]
+    df_d['n_is_increasing_cpu'] = df_d.apply(lambda row : normalize_booleans(row['is_increasing_cpu']), axis = 1)
+    df_d['n_secs'] = df_d.apply(lambda row : normalize_secs(row['secs'], df_d['secs'].min(), df_d['secs'].max()), axis = 1)
+    print(df_d.head())
+    matplotlib.use( 'QtAgg' )
+    plt.xlabel('time')
+    plt.ylabel('n_is_increasing_cpu')
+    plt.plot(df_d["n_secs"], df_d["n_is_increasing_cpu"])
+    plt.show()
+
+def plot_cpu_over_time():
+    import pandas as pd
+    import numpy as np
+    import matplotlib
+    import matplotlib.pyplot as plt
+
+    def normalize_number(value, start_time, end_time):
+        return (value - start_time) / (end_time - start_time)
     
-    time_series_data.append(d)
+    df = pd.DataFrame(time_series_data)
+    print(df.head())
+    df_d = df[["secs","cpu_pcent"]]
+    df_d['n_secs'] = df_d.apply(lambda row : normalize_number(row['secs'], df_d['secs'].min(), df_d['secs'].max()), axis = 1)
+    print(df_d.head())
+    matplotlib.use( 'QtAgg' )
+    plt.xlabel('time')
+    plt.ylabel('cpu_pcent')
+    plt.plot(df_d["n_secs"], df_d["cpu_pcent"])
+    plt.show()
+
+def plot_mem_over_time():
+    import pandas as pd
+    import numpy as np
+    import matplotlib
+    import matplotlib.pyplot as plt
+
+    def normalize_number(value, start_time, end_time):
+        return (value - start_time) / (end_time - start_time)
     
-    #print(json.dumps(doc, indent=4))
-    print("Container Name: %s" % containers.name)
-    print("Container ID: %s" % containers.id)
-    print("CPU Percent: %s" % cpu_pcent)
-    print("Memory Usage: %s" % humanize_bytes(mem_usage))
-    print("Memory Limit: %s" % humanize_bytes(mem_limit))
-    print("Is Increasing CPU: %s" % is_increasing_cpu)
-    print("Is Increasing Memory: %s" % is_increasing_mem)
-    print('-'*80)
-    
-    if (len(time_series_data) > 20):
-        import pandas as pd
-        import numpy as np
-        import matplotlib.pyplot as plt
-        df = pd.DataFrame(time_series_data)
-        df.head()
-        df['Volume'].plot()
+    df = pd.DataFrame(time_series_data)
+    print(df.head())
+    df_d = df[["secs","mem_usage"]]
+    df_d['n_secs'] = df_d.apply(lambda row : normalize_number(row['secs'], df_d['secs'].min(), df_d['secs'].max()), axis = 1)
+    print(df_d.head())
+    matplotlib.use( 'QtAgg' )
+    plt.xlabel('time')
+    plt.ylabel('mem_usage')
+    plt.plot(df_d["n_secs"], df_d["mem_usage"])
+    plt.show()
+
+while (1):
+    client = docker.DockerClient(base_url='unix:///var/run/docker.sock')
+    for containers in client.containers.list():
+        doc = containers.stats(decode=None, stream=False)
+        cpu_pcent = calculate_cpu_percent(doc)
+        mem_usage = doc["memory_stats"]["usage"]
+        mem_limit = doc["memory_stats"]["limit"]
+        
+        is_increasing_cpu = cpu_pcent < 80.0 #psutil.cpu_percent()
+        is_increasing_mem = mem_usage < (psutil.virtual_memory()[1] * 0.8)
+        
+        d = {}
+        d["secs"] = time.time()
+        d["container_id"] = containers.id
+        d["container_name"] = containers.name
+        d["cpu_pcent"] = cpu_pcent
+        d["mem_usage"] = mem_usage
+        d["mem_limit"] = mem_limit
+        d["is_increasing_cpu"] = is_increasing_cpu
+        d["is_increasing_mem"] = is_increasing_mem
+        
+        time_series_data.append(d)
+        
+        #print(json.dumps(doc, indent=4))
+        print("Container Name: %s" % containers.name)
+        print("Container ID: %s" % containers.id)
+        print("CPU Percent: %s" % cpu_pcent)
+        print("Memory Usage: %s" % humanize_bytes(mem_usage))
+        print("Memory Limit: %s" % humanize_bytes(mem_limit))
+        print("Is Increasing CPU: %s" % is_increasing_cpu)
+        print("Is Increasing Memory: %s" % is_increasing_mem)
+        print('-'*80)
+        
+        if (len(time_series_data) > 20):
+            plot_inc_cpu_over_time()
+            #plot_cpu_over_time()
+            #plot_mem_over_time()
+            sys.exit()
