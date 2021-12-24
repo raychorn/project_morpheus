@@ -17,6 +17,9 @@ import pymongo
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 
+is_really_something = lambda s,t:(s is not None) and ( (callable(t) and (not isinstance(t, types.FunctionType)) and isinstance(s, t)) or (callable(t) and (isinstance(t, types.FunctionType)) and t(s)) )
+is_really_something_with_stuff = lambda s,t:is_really_something(s,t) and (len(s) > 0)
+
 is_not_none = lambda s:(s is not None)
 
 db = lambda cl,n:cl.get_database(n)
