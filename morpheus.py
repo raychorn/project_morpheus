@@ -342,4 +342,6 @@ try:
             dest_coll.insert_one(s)
 finally:
     client.close()
+    
+print('Done.')
         
