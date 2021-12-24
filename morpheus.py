@@ -254,6 +254,8 @@ dest_coll = db_collection(client, dest_db_name, socket.gethostname())
 
 one_gb_in_bytes = 1024 * 1024 * 1024
 
+normalize_cpu_period = lambda x : x if (x >= 0) else 1000
+
 try:
     while (1):
         client = docker.DockerClient(base_url='unix:///var/run/docker.sock')
@@ -328,14 +330,14 @@ try:
                     print("Adjusting CPU Up")
                     num_cpu_periods = 1000
                     num_cpu_quota = 10000
-                    container.update(cpu_periods=cpu_periods + num_cpu_periods, cpu_quota=cpu_periods + num_cpu_quota)
-                    the_action = {"cpu_up": {"cpu_periods": num_cpu_periods, "cpu_quota": num_cpu_quota}}
+                    container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_quota))
+                    the_action = {"cpu_up": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_quota)}}
                 if (is_decreasing_cpu):
                     print("Adjusting CPU Down")
                     num_cpu_periods = -1000
                     num_cpu_quota = 1000
-                    container.update(cpu_periods=cpu_periods + num_cpu_periods, cpu_quota=cpu_periods + num_cpu_quota)
-                    the_action = {"cpu_down": {"cpu_periods": num_cpu_periods, "cpu_quota": num_cpu_quota}}
+                    container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_periods))
+                    the_action = {"cpu_down": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_periods)}}
                 print()
             d["action"] = the_action
             print('-'*80)
