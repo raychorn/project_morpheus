@@ -317,13 +317,13 @@ try:
                 if (is_increasing_mem):
                     print("Adjusting Memory Up")
                     num_bytes = one_gb_in_bytes
-                    container.update(mem_limit=mem_limit + num_bytes)
-                    the_action = {"mem_up": num_bytes}
+                    container.update(mem_limit=mem_limit + num_bytes, memswap_limit=mem_limit + num_bytes + one_gb_in_bytes)
+                    the_action = {"mem_up": {"mem_limit": mem_limit + num_bytes, "memswap_limit": mem_limit + num_bytes + one_gb_in_bytes}}
                 if (is_decreasing_mem):
                     print("Adjusting Memory Down")
                     num_bytes = -one_gb_in_bytes
-                    container.update(mem_limit=mem_limit + num_bytes)
-                    the_action = {"mem_down": num_bytes}
+                    container.update(mem_limit=mem_limit + num_bytes, memswap_limit=mem_limit + num_bytes + one_gb_in_bytes)
+                    the_action = {"mem_down": {"mem_limit": mem_limit + num_bytes, "memswap_limit": mem_limit + num_bytes + one_gb_in_bytes}}
                 if (is_increasing_cpu):
                     print("Adjusting CPU Up")
                     num_cpu_periods = 1000
