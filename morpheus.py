@@ -19,6 +19,10 @@ def calculate_cpu_percent(d):
     return cpu_percent
 
 
+def get_cpu_periods(d):
+    return d['precpu_stats']['throttling_data']['periods']
+
+
 def calculate_blkio_bytes(d):
     """
     :param d:
@@ -179,21 +183,32 @@ def plot_mem_over_time():
     plt.plot(df_d["n_secs"], df_d["mem_usage"])
     plt.show()
 
+one_gb_in_bytes = 1024 * 1024 * 1024
+
 while (1):
     client = docker.DockerClient(base_url='unix:///var/run/docker.sock')
-    for containers in client.containers.list():
-        doc = containers.stats(decode=None, stream=False)
+    for container in client.containers.list():
+        doc = container.stats(decode=None, stream=False)
         cpu_pcent = calculate_cpu_percent(doc)
+        cpu_periods = get_cpu_periods(doc)
         mem_usage = doc["memory_stats"]["usage"]
         mem_limit = doc["memory_stats"]["limit"]
         
-        is_increasing_cpu = cpu_pcent < 80.0 #psutil.cpu_percent()
-        is_increasing_mem = mem_usage < (psutil.virtual_memory()[1] * 0.8)
+        os_cpu_pcent = psutil.cpu_percent()
+        os_memory_available = psutil.virtual_memory()[1]
+        
+        c_mem_usage_pcent = mem_usage / mem_limit
+        
+        is_increasing_cpu = (cpu_pcent > 80.0) and (cpu_pcent < 100.0) and (os_cpu_pcent < 80.0)
+        is_decreasing_cpu = (cpu_pcent > 100.0)
+
+        is_increasing_mem = (c_mem_usage_pcent > 0.8) and (os_memory_available > one_gb_in_bytes) and (mem_usage < (os_memory_available * 0.8))
+        is_decreasing_mem = (c_mem_usage_pcent < 0.01)
         
         d = {}
         d["secs"] = time.time()
-        d["container_id"] = containers.id
-        d["container_name"] = containers.name
+        d["container_id"] = container.id
+        d["container_name"] = container.name
         d["cpu_pcent"] = cpu_pcent
         d["mem_usage"] = mem_usage
         d["mem_limit"] = mem_limit
@@ -203,17 +218,42 @@ while (1):
         time_series_data.append(d)
         
         #print(json.dumps(doc, indent=4))
-        print("Container Name: %s" % containers.name)
-        print("Container ID: %s" % containers.id)
+        print("Container Name: %s" % container.name)
+        print("Container ID: %s" % container.id)
         print("CPU Percent: %s" % cpu_pcent)
         print("Memory Usage: %s" % humanize_bytes(mem_usage))
         print("Memory Limit: %s" % humanize_bytes(mem_limit))
         print("Is Increasing CPU: %s" % is_increasing_cpu)
         print("Is Increasing Memory: %s" % is_increasing_mem)
-        print('-'*80)
+        print("Is Decreasing CPU: %s" % is_decreasing_cpu)
+        print("Is Decreasing Memory: %s" % is_decreasing_mem)
+        print()
+
+        print("DEBUG: c_mem_usage_pcent: %s" % c_mem_usage_pcent)
+        print('DEBUG: os_cpu_pcent: {}'.format(os_cpu_pcent))
+        print('DEBUG: os_memory_available: {}'.format(os_memory_available))
+        print()
         
         if (len(time_series_data) > 20):
-            plot_inc_cpu_over_time()
+            #plot_inc_cpu_over_time()
             #plot_cpu_over_time()
             #plot_mem_over_time()
-            sys.exit()
+            #sys.exit()
+            pass
+        
+        if (is_increasing_mem or is_decreasing_mem or is_decreasing_cpu or is_increasing_cpu):
+            print("Adjusting Container: %s" % container.name)
+            if (is_increasing_mem):
+                print("Adjusting Memory Up")
+                container.update(mem_limit=mem_limit + one_gb_in_bytes)
+            if (is_decreasing_mem):
+                print("Adjusting Memory Down")
+                container.update(mem_limit=mem_limit - one_gb_in_bytes)
+            if (is_increasing_cpu):
+                print("Adjusting CPU Up")
+                container.update(cpu_periods=cpu_periods + 1000, cpu_quota=cpu_periods + 10000)
+            if (is_decreasing_cpu):
+                print("Adjusting CPU Down")
+                container.update(cpu_periods=cpu_periods - 1000, cpu_quota=cpu_periods + 1000)
+            print()
+        print('-'*80)
