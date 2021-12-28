@@ -77,13 +77,28 @@ then
     fi
 fi
 
+if [[ ! -f $pip3 ]]
+then
+    echo "14. pip3 not found. Exiting..."
+    exit 1
+fi
+
 virtualenv=$(which virtualenv)
 echo "15. virtualenv is $virtualenv"
 
 if [[ ! -f $virtualenv ]]
 then
+    echo "15.1 installing virtualenv"
     $pip3 install virtualenv > /dev/null 2>&1
     $pip3 install --upgrade virtualenv > /dev/null 2>&1
+fi
+
+virtualenv=$(which virtualenv)
+
+if [[ ! -f $virtualenv ]]
+then
+    echo "15.2 virtualenv not found. Exiting..."
+    exit 1
 fi
 
 choice=$(which python3.9)
