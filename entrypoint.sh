@@ -15,13 +15,8 @@ if [ ! -f "$VENV_DIR" ]; then
     VENV_DIR=$(ls -la $DIR0/venv*/bin/activate | head -n 1)
 fi
 
-if [ ! -f "$MAKEVENV" ]; then
-    echo "No makevenv.sh found. Exiting..."
-    exit 1
-fi
-
 if [ ! -f "$VENV_DIR" ]; then
-    echo "No Virtual Env found. Exiting..."
+    echo "No Virtual Env ($VENV_DIR) found. Exiting..."
     exit 1
 fi
 . $VENV_DIR
