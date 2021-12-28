@@ -2,7 +2,7 @@
 
 DIR0="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-VENV_DIR=$(ls -la $DIR0/venv*/bin/activate | head -n 1)
+VENV_DIR=$(ls $DIR0/venv*/bin/activate | head -n 1)
 
 MAKEVENV=$DIR0/makevenv.sh
 if [ ! -f "$VENV_DIR" ]; then
@@ -12,7 +12,7 @@ if [ ! -f "$VENV_DIR" ]; then
         exit 1
     fi
     $MAKEVENV
-    VENV_DIR=$(ls -la $DIR0/venv*/bin/activate | head -n 1)
+    VENV_DIR=$(ls $DIR0/venv*/bin/activate | head -n 1)
 fi
 
 if [ ! -f "$VENV_DIR" ]; then
