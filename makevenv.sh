@@ -5,6 +5,11 @@ LOCAL_BIN=~/.local/bin
 
 DIR0="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+export DEBIAN_FRONTEND=noninteractive
+export TZ=US/Mountain
+ln -s /usr/share/zoneinfo/$TZ /etc/localtime
+echo $TZ > /etc/timezone
+
 VENV=$DIR0/venv
 REQS=$DIR0/requirements.txt
 
