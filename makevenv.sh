@@ -45,7 +45,7 @@ then
             echo "9. $pip3 exists so not installing pip3, at this time."
         else
             echo "10. Installing pip3"
-            GETPIP=$DIR0/get-pip.py
+            GETPIP=$DIR0/scripts/get-pip.py
 
             if [[ -f $GETPIP ]]
             then
@@ -58,6 +58,9 @@ then
                     setuptools="1"
                     $pip3 install --upgrade setuptools > /dev/null 2>&1
                 fi
+            else
+                echo "12. $GETPIP not found. Exiting..."
+                exit 1
             fi
         fi
     fi
