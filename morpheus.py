@@ -333,18 +333,20 @@ try:
                     num_cpu_quota = 10000
                     if ((cpu_periods + num_cpu_periods) < 1000):
                         num_cpu_periods += 1000
-                    if ((cpu_periods + num_cpu_periods) > 1000):
-                        container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_quota))
-                        the_action = {"cpu_up": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_quota)}}
+                    if ((cpu_periods + num_cpu_periods) < 1000000):
+                        if ((cpu_periods + num_cpu_periods) > 1000):
+                            container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_quota))
+                            the_action = {"cpu_up": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_quota)}}
                 if (is_decreasing_cpu):
                     print("Adjusting CPU Down")
                     num_cpu_periods = -1000
                     num_cpu_quota = 1000
                     if ((cpu_periods + num_cpu_periods) < 1000):
                         num_cpu_periods = 1000
-                    if ((cpu_periods + num_cpu_periods) > 1000):
-                        container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_periods))
-                        the_action = {"cpu_down": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_periods)}}
+                    if ((cpu_periods + num_cpu_periods) < 1000000):
+                        if ((cpu_periods + num_cpu_periods) > 1000):
+                            container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_periods))
+                            the_action = {"cpu_down": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_periods)}}
                 print()
             d["action"] = the_action
             print('-'*80)
