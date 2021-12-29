@@ -337,6 +337,8 @@ try:
                     print("Adjusting CPU Down")
                     num_cpu_periods = -1000
                     num_cpu_quota = 1000
+                    if ((cpu_periods + num_cpu_periods) < 1000):
+                        num_cpu_periods = 1000
                     if ((cpu_periods + num_cpu_periods) > 1000):
                         container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_periods))
                         the_action = {"cpu_down": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_periods)}}
