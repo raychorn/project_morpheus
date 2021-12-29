@@ -250,7 +250,11 @@ def plot_mem_over_time():
     plt.plot(df_d["n_secs"], df_d["mem_usage"])
     plt.show()
 
-_hostname = os.environ.get('HOST_HOSTNAME', socket.gethostname())
+if (len(sys.argv) > 1 and isinstance(sys.argv[1], str) and (len(sys.argv[1]) > 0)):
+    _hostname = sys.argv[1]
+else:
+    _hostname = os.environ.get('HOST_HOSTNAME', socket.gethostname())
+
 dest_coll = db_collection(client, dest_db_name, _hostname)
 
 one_gb_in_bytes = 1024 * 1024 * 1024

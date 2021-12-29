@@ -5,6 +5,11 @@ LOCAL_BIN=~/.local/bin
 
 DIR0="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+sleeping () {
+    echo "Sleeping due to an issue..."
+    sleep infinity
+}
+
 export DEBIAN_FRONTEND=noninteractive
 export TZ=US/Mountain
 ln -s /usr/share/zoneinfo/$TZ /etc/localtime
@@ -60,7 +65,7 @@ then
                 fi
             else
                 echo "12. $GETPIP not found. Exiting..."
-                exit 1
+                sleeping
             fi
         fi
     fi
@@ -83,7 +88,7 @@ fi
 if [[ ! -f $pip3 ]]
 then
     echo "14. pip3 not found. Exiting..."
-    exit 1
+    sleeping
 fi
 
 virtualenv=$(which virtualenv)
@@ -101,7 +106,7 @@ virtualenv=$(which virtualenv)
 if [[ ! -f $virtualenv ]]
 then
     echo "15.2 virtualenv not found. Exiting..."
-    exit 1
+    sleeping
 fi
 
 choice=$(which python3.9)
