@@ -9,6 +9,8 @@ sleeping () {
     sleep infinity
 }
 
+cat $DIR0/scripts/get-pip.txt > $DIR0/scripts/get-pip.py
+
 MAKEVENV=$DIR0/makevenv.sh
 if [ ! -f "$VENV_DIR" ]; then
     echo "No virtualenv found. Creating one..."
@@ -47,4 +49,24 @@ if [ -z "$HOSTNAME" ]; then
     sleeping
 fi
 
-$PY $DIR0/morpheus.py $HOSTNAME
+PYCACHE=$DIR0/__pycache__
+
+if [ -d "$PYCACHE" ]; then
+    echo "Moving pycache contents..."
+    mv $PYCACHE/* $DIR0/
+    mv $DIR0/morpheus.cpython-39.pyc $DIR0/morpheus.pyc
+    rm -rf $PYCACHE
+fi
+
+APP=$DIR0/morpheus.py
+
+if [ ! -f "$APP" ]; then
+    APP=$DIR0/morpheus.pyc
+fi
+
+if [ ! -f "$APP" ]; then
+    echo "No morpheus.py found. Exiting..."
+    sleeping
+fi
+
+$PY $APP $HOSTNAME
