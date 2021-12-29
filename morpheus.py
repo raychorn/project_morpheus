@@ -324,8 +324,9 @@ try:
                 if (is_decreasing_mem):
                     print("Adjusting Memory Down")
                     num_bytes = -one_gb_in_bytes
-                    container.update(mem_limit=mem_limit + num_bytes, memswap_limit=mem_limit + num_bytes + one_gb_in_bytes)
-                    the_action = {"mem_down": {"mem_limit": mem_limit + num_bytes, "memswap_limit": mem_limit + num_bytes + one_gb_in_bytes}}
+                    if ((mem_limit + num_bytes) > (one_gb_in_bytes / 2)):
+                        container.update(mem_limit=mem_limit + num_bytes, memswap_limit=mem_limit + num_bytes + one_gb_in_bytes)
+                        the_action = {"mem_down": {"mem_limit": mem_limit + num_bytes, "memswap_limit": mem_limit + num_bytes + one_gb_in_bytes}}
                 if (is_increasing_cpu):
                     print("Adjusting CPU Up")
                     num_cpu_periods = 1000
@@ -336,8 +337,9 @@ try:
                     print("Adjusting CPU Down")
                     num_cpu_periods = -1000
                     num_cpu_quota = 1000
-                    container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_periods))
-                    the_action = {"cpu_down": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_periods)}}
+                    if ((cpu_periods + num_cpu_periods) > 1000):
+                        container.update(cpu_period=normalize_cpu_period(cpu_periods + num_cpu_periods), cpu_quota=normalize_cpu_period(cpu_periods + num_cpu_periods))
+                        the_action = {"cpu_down": {"cpu_periods": normalize_cpu_period(cpu_periods + num_cpu_periods), "cpu_quota": normalize_cpu_period(cpu_periods + num_cpu_periods)}}
                 print()
             d["action"] = the_action
             print('-'*80)
