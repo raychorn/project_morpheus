@@ -29,8 +29,11 @@ db_collection = lambda cl,n,c:db(cl,n).get_collection(c)
 db_coll = lambda cl,n,c:cl.get_database(n).get_collection(c)
 
 fp_env = dotenv.find_dotenv()
-print('fp_env: {}'.format(fp_env))
-dotenv.load_dotenv(fp_env)
+if (os.path.exists(fp_env)):
+    print('fp_env: {}'.format(fp_env))
+    dotenv.load_dotenv(fp_env)
+else:
+    print('Cannot find "{}" so using the OS Environ instead.'.format(fp_env))
 
 def get_mongo_client(mongouri=None, db_name=None, username=None, password=None, authMechanism=None):
     if (is_not_none(authMechanism)):

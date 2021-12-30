@@ -54,9 +54,22 @@ PYCACHE=$DIR0/__pycache__
 if [ -d "$PYCACHE" ]; then
     echo "Moving pycache contents..."
     mv $PYCACHE/* $DIR0/
-    mv $DIR0/morpheus.cpython-39.pyc $DIR0/morpheus.pyc
+    mv $DIR0/relocate_pyc.cpython-39.pyc $DIR0/relocate_pyc.pyc
     rm -rf $PYCACHE
 fi
+
+##################################################
+MOVER=$DIR0/relocate_pyc.pyc
+
+if [ ! -f "$MOVER" ]; then
+    echo "No mover found. Exiting..."
+    sleeping
+fi
+
+VENV_DIR=$(dirname $VENV_DIR)
+VENV_DIR=$(dirname $VENV_DIR)
+$PY $MOVER $DIR0 $VENV_DIR
+##################################################
 
 APP=$DIR0/morpheus.py
 
