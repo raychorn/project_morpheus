@@ -2,6 +2,12 @@
 
 DIR0="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+BUILD_OPTS="--build"
+
+if [ -z "$1" ]; then
+    BUILD_OPTS=""
+fi
+
 VENV_DIR=$(ls $DIR0/venv*/bin/activate | head -n 1)
 
 sleeping () {
@@ -82,5 +88,7 @@ if [ ! -f "$APP" ]; then
     sleeping
 fi
 
-echo "Running $PY $APP $HOSTNAME"
-$PY $APP $HOSTNAME
+if [ -z "$BUILD_OPTS" ]; then
+    echo "Running $PY $APP $HOSTNAME"
+    $PY $APP $HOSTNAME
+fi

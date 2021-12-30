@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  morpheus-builder:
+    dockerfile: ./Dockerfile
+    tty: true
+    stdin_open: true
