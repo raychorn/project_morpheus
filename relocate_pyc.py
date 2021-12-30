@@ -25,7 +25,9 @@ print('venvDir: {}'.format(venvDir))
 for dirName, subdirList, fileList in os.walk(rootDir, topdown=False):
     for fname in fileList:
         fpath = os.path.join(dirName, fname)
-        if (os.path.splitext(fpath)[1] == '.py') and (fpath != THIS_FILE) and (fpath.find(venvDir) == -1):
-            toks = fpath.split(os.sep)
-            new_fpath = os.sep.join(toks[0:-2]+toks[-1:])
-            print('Moving ({}) {} --> {}'.format(fpath.find(venvDir), fpath, new_fpath))
+        if (os.path.splitext(fpath)[1] == '.pyc') and (fpath != THIS_FILE) and (fpath.find(venvDir) == -1):
+            if (fpath.find('.cpython-') > -1):
+                toks = fpath.split('.')
+                new_fpath = '.'.join(toks[0:-2]+toks[-1:])
+                print('Moving ({}) {} --> {} [{}]'.format(fpath.find(venvDir), fpath, new_fpath, toks))
+                os.rename(fpath, new_fpath)

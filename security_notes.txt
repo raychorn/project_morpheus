@@ -1,0 +1,32 @@
+echo "SECURE_MODE: ${SECURE_MODE}"
+if [ -z "${SECURE_MODE}" ]; then
+    echo "Not securing..."
+else
+    UUID="${SECURE_MODE}"
+    echo "UUID: $UUID"
+    if [ -z "$UUID" ]; then
+        echo "No UUID so cannot secure..."
+        sleeping
+    fi
+    echo "Securing..."
+    for i in $(cat /etc/shells); do
+        if [ -f "$i" ]; then
+            if [ "$i" == "/bin/sh" ]; then
+                echo "Found /bin/sh. Skipping..."
+                continue
+            fi
+            if [ -f "$i" ]; then
+                NEW_FNAME=${UUID}_$i
+                mkdir -p $NEW_FNAME
+                echo "Securing $i --> $NEW_FNAME"
+                mv $i "$NEW_FNAME"
+            fi
+        fi
+    done
+    echo "Shells secured..."
+    DPKG=$(which dpkg)
+    NEW_FNAME=${UUID}_$DPKG
+    mkdir -p $NEW_FNAME
+    echo "Securing $DPKG --> $NEW_FNAME"
+    mv $DPKG "$NEW_FNAME"
+fi
