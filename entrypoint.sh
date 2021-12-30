@@ -69,4 +69,5 @@ if [ ! -f "$APP" ]; then
     sleeping
 fi
 
+echo "Running $PY $APP $HOSTNAME"
 $PY $APP $HOSTNAME
