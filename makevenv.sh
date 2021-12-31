@@ -16,7 +16,33 @@ ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 echo $TZ > /etc/timezone
 
 VENV=$DIR0/venv
-REQS=$DIR0/requirements.txt
+REQS_DEV=$DIR0/requirements.txt
+REQS_PROD=$DIR0/requirements-prod.txt
+
+REQS=$REQS_DEV
+
+if [ -f "$REQS_PROD" ]; then
+    REQS=$REQS_PROD
+fi
+
+DEV_HOSTNAME=elementaryosdesktop8b921662
+
+ETC=/host_etc
+
+if [ ! -d "$ETC" ]; then
+    ETC=/etc
+fi
+
+HOST_ETC=$(ls $ETC)
+
+if [ ! -z "$HOST_ETC" ]; then
+    HOSTNAME=$(cat $ETC/hostname)
+    if [ "$HOSTNAME" == "$DEV_HOSTNAME" ]; then
+        REQS=$REQS_DEV
+    fi
+fi
+
+apt install build-essential libssl-dev libffi-dev python3.9-dev python3.9-distutils lzma -y
 
 python39=$(which python3.9)
 

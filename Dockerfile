@@ -15,7 +15,11 @@ RUN apt-get update -y && apt-get upgrade -y &&  \
 
 FROM alpine:latest  
 RUN apk --no-cache add ca-certificates
+
+RUN groupadd -g 1000 appuser && \
+    useradd -r -u 1000 -g appuser appuser
 USER appuser
+
 WORKDIR /workspaces2/
 COPY --from=builder /workspaces/ ./
 CMD ["./entrypoint.sh"]

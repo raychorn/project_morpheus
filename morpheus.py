@@ -271,24 +271,29 @@ try:
     while (1):
         client = docker.DockerClient(base_url='unix:///var/run/docker.sock')
         for container in client.containers.list():
+            d = {}
+
             doc = container.stats(decode=None, stream=False)
             cpu_pcent = calculate_cpu_percent(doc)
             cpu_periods = get_cpu_periods(doc)
-            mem_usage = doc["memory_stats"]["usage"]
-            mem_limit = doc["memory_stats"]["limit"]
+            mem_usage = doc.get("memory_stats", {}).get("usage", -1)
+            mem_limit = doc.get("memory_stats", {}).get("limit", -1)
             
             os_cpu_pcent = psutil.cpu_percent()
             os_memory_available = psutil.virtual_memory()[1]
             
-            c_mem_usage_pcent = mem_usage / mem_limit
+            is_increasing_mem = False
+            is_decreasing_mem = False
+
+            c_mem_usage_pcent = -1
+            if ( (mem_usage > 0) and (mem_limit > 0) ):
+                c_mem_usage_pcent = mem_usage / mem_limit
+                is_increasing_mem = (c_mem_usage_pcent > 0.8) and (os_memory_available > one_gb_in_bytes) and (mem_usage < (os_memory_available * 0.8))
+                is_decreasing_mem = (c_mem_usage_pcent < 0.01)
             
             is_increasing_cpu = (cpu_pcent > 80.0) and (cpu_pcent < 100.0) and (os_cpu_pcent < 80.0)
             is_decreasing_cpu = (cpu_pcent > 100.0)
 
-            is_increasing_mem = (c_mem_usage_pcent > 0.8) and (os_memory_available > one_gb_in_bytes) and (mem_usage < (os_memory_available * 0.8))
-            is_decreasing_mem = (c_mem_usage_pcent < 0.01)
-            
-            d = {}
             d["secs"] = time.time()
             d["container_id"] = container.id
             d["container_name"] = container.name
@@ -316,13 +321,6 @@ try:
             print('DEBUG: os_cpu_pcent: {}'.format(os_cpu_pcent))
             print('DEBUG: os_memory_available: {}'.format(os_memory_available))
             print()
-            
-            if (len(time_series_data) > 20):
-                #plot_inc_cpu_over_time()
-                #plot_cpu_over_time()
-                #plot_mem_over_time()
-                #sys.exit()
-                pass
             
             the_action = None
             if (is_increasing_mem or is_decreasing_mem or is_decreasing_cpu or is_increasing_cpu):
