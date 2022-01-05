@@ -360,7 +360,7 @@ try:
             d["action"] = the_action
             print('-'*80)
             
-            s = {'hostname':socket.gethostname(), 'time-secs':int(time.time())}
+            s = {'hostname':_hostname, 'time-secs':int(time.time())}
             for k,v in d.items():
                 s[k] = v
             dest_coll.insert_one(s)
