@@ -267,6 +267,30 @@ one_gb_in_bytes = 1024 * 1024 * 1024
 
 normalize_cpu_period = lambda x : x if (x >= 0) else 1000
 
+
+def get_utc_offset():
+    '''
+        import pytz, datetime
+        tz = pytz.timezone('America/Denver')
+        now = datetime.datetime.now()
+        n = tz.utcoffset(now).total_seconds()
+        print(now)
+        print(n)
+
+        utc_datetime = datetime.datetime.utcnow()
+        s = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        print(s)
+
+        # add some seconds to now
+        b = utc_datetime + datetime.timedelta(seconds=n)
+        print(b)
+    '''
+    import pytz, datetime
+    tz = pytz.timezone('America/Denver')
+    now = datetime.datetime.now()
+    n = tz.utcoffset(now).total_seconds()
+    return now, n
+
 try:
     while (1):
         client = docker.DockerClient(base_url='unix:///var/run/docker.sock')
@@ -295,6 +319,8 @@ try:
             is_decreasing_cpu = (cpu_pcent > 100.0)
 
             d["secs"] = time.time()
+            now, n = get_utc_offset()
+            d["timestamp"] = {'now': now, 'tzoffset': n}
             d["container_id"] = container.id
             d["container_name"] = container.name
             d["cpu_pcent"] = cpu_pcent
