@@ -364,6 +364,8 @@ try:
             for k,v in d.items():
                 s[k] = v
             dest_coll.insert_one(s)
+
+        time.sleep(60)
 finally:
     client.close()
     
