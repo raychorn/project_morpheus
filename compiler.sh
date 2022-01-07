@@ -36,4 +36,4 @@ $PY $COMPILER $DIR0 $VENV_DIR
 
 #echo "VENV_DIR:$VENV_DIR"
 
-tar --exclude="./venv*" --exclude="./.git" --exclude='.env' --exclude='.gitignore' --exclude='*.py' --exclude='get-pip.cpython-39.pyc' --exclude='compiler.sh' --exclude='*ocker*' --exclude='*notes*' --exclude='requirements.txt' --exclude='./scripts/__pycache__' -zcvf ../project_morpheus.tgz .
+tar --exclude="./venv*" --exclude="./.git" --exclude='.env' --exclude='.gitignore' --exclude='*.py' --exclude='get-pip.cpython-39.pyc' --exclude='compiler.sh' --exclude='*ocker*' --exclude='*notes*' --exclude='requirements.txt' --exclude='pip-upgrade.sh' --exclude='./scripts/__pycache__' -zcvf ../project_morpheus.tgz .
